@@ -1,14 +1,10 @@
 services:
   - type: web
-    name: haalkhata-engine-api
+    name: haalkhata-engine
     runtime: python
-    region: singapore          # closest to Bangladesh
-    plan: starter              # free tier — upgrade for faster cold starts
+    region: singapore
+    plan: free
+    pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.0"
     healthCheckPath: /health
-    # Render free tier sleeps after 15min inactivity.
-    # Upgrade to Starter ($7/mo) for always-on.

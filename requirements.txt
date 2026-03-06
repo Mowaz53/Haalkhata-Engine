@@ -4,7 +4,7 @@ python-multipart==0.0.9
 ultralytics==8.2.18
 easyocr==1.7.1
 opencv-python-headless==4.9.0.80
-Pillow==10.3.0
-numpy==1.26.4
+Pillow>=10.3.0
+numpy>=1.26.0
 torch==2.2.2
 torchvision==0.17.2

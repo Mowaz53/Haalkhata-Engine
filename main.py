@@ -221,7 +221,7 @@ Be specific with product names. If you see Bengali text, include it. Respond ONL
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={gemini_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}",
                 json=gemini_payload
             )
         if resp.status_code != 200:
@@ -235,5 +235,7 @@ Be specific with product names. If you see Bengali text, include it. Respond ONL
 
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Gemini request timed out")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")

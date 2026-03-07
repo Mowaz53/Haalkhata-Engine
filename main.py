@@ -239,3 +239,45 @@ Be specific with product names. If you see Bengali text, include it. Respond ONL
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
+
+# ── PaddleOCR ─────────────────────────────────────────────────────────────────
+_paddle = None
+def get_paddle():
+    global _paddle
+    if _paddle is None:
+        from paddleocr import PaddleOCR
+        logger.info("Loading PaddleOCR...")
+        _paddle = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False)
+        logger.info("PaddleOCR ready.")
+    return _paddle
+
+@app.post("/paddle-ocr")
+async def paddle_ocr(payload: dict):
+    try:
+        image_data = payload.get("image", "")
+        if "," in image_data:
+            image_data = image_data.split(",")[1]
+        img_bytes = base64.b64decode(image_data)
+        arr = np.frombuffer(img_bytes, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if img is None:
+            raise HTTPException(status_code=400, detail="Invalid image")
+
+        ocr = get_paddle()
+        result = ocr.ocr(img, cls=True)
+
+        lines = []
+        if result and result[0]:
+            for line in result[0]:
+                text  = line[1][0]
+                score = line[1][1]
+                if score > 0.5 and text.strip():
+                    lines.append(text.strip())
+
+        return JSONResponse({"text": "\n".join(lines), "lines": lines, "status": "ok"})
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PaddleOCR error: {e}")
+        raise HTTPException(status_code=500, detail=f"OCR error: {str(e)}")
